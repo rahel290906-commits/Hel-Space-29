@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEL SPACE 29 — Game Development Studio & Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   HEL SPACE 29 — LIQUID GLASS / CYBER-ROBOTIC SPACE EDITION — 2026
+   ========================================================================== */
+
+:root{
+  --void-0:#03040a;
+  --void-1:#070a17;
+  --void-2:#0b0f21;
+
+  --glass-fill: rgba(255,255,255,0.045);
+  --glass-fill-strong: rgba(255,255,255,0.09);
+  --glass-border: rgba(255,255,255,0.14);
+  --glass-border-hi: rgba(255,255,255,0.4);
+
+  --cyan:#5ee6ff;
+  --cyan-soft: rgba(94,230,255,.35);
+  --violet:#b48bff;
+  --violet-soft: rgba(180,139,255,.32);
+  --amber:#ffb15e;
+  --amber-soft: rgba(255,177,94,.32);
+
+  --text:#eef3ff;
+  --text-dim:#94a1c4;
+
+  --font-display:'Orbitron', sans-serif;
+  --font-body:'Rajdhani', sans-serif;
+  --font-mono:'Share Tech Mono', monospace;
+
+  --r-xl: 32px;
+  --r-lg: 24px;
+  --r-md: 16px;
+  --r-sm: 10px;
+
+  --mx: 50%;
+  --my: 50%;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--void-0);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:18px;
+  line-height:1.5;
+  overflow-x:hidden;
+  cursor:default;
+}
+::selection{background:var(--cyan);color:var(--void-0);}
+a{color:inherit;text-decoration:none;}
+img{max-width:100%;display:block;}
+button,input,textarea{font-family:inherit;}
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--void-0);}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--cyan),var(--violet));border-radius:10px;}
+
+h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:0.02em;}
+
+section{position:relative;z-index:3;padding:150px 8vw;}
+.section-inner{max-width:1220px;margin:0 auto;}
+
+/* biar section yg belum ke-scroll gak dirender, lebih ringan */
+section:not(.hero){
+  content-visibility:auto;
+  contain-intrinsic-size:auto 900px;
+}
+
+/* elemen yg animasinya jalan terus, dikasih layer sendiri */
+.aurora span, .orbit-ring, .scroll-line::after, .bar-fill::after,
+.astronaut-wrapper-collab, .logo-mark, #cursor-glow{
+  will-change:transform;
+}
+.glass{contain:layout paint style;}
+
+/* ================= BACKDROP LAYERS ================= */
+#starfield{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 0%, #0d1430 0%, #03040a 62%);}
+#starfield canvas{display:block;width:100%;height:100%;}
+
+.aurora{position:fixed;inset:0;z-index:1;pointer-events:none;mix-blend-mode:screen;overflow:hidden;}
+.aurora span{
+  position:absolute;border-radius:50%;filter:blur(110px);opacity:.55;
+  animation:driftAurora 26s ease-in-out infinite;
+}
+.aurora span:nth-child(1){width:46vw;height:46vw;background:var(--cyan-soft);top:-12%;left:-8%;animation-duration:24s;}
+.aurora span:nth-child(2){width:40vw;height:40vw;background:var(--violet-soft);bottom:-14%;right:-6%;animation-duration:30s;animation-delay:-6s;}
+.aurora span:nth-child(3){width:30vw;height:30vw;background:var(--amber-soft);top:40%;left:55%;animation-duration:22s;animation-delay:-12s;}
+@keyframes driftAurora{
+  0%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(6%,4%) scale(1.12);}
+  66%{transform:translate(-5%,6%) scale(0.95);}
+  100%{transform:translate(0,0) scale(1);}
+}
+
+.grid-overlay{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.35;
+  background-image:
+    linear-gradient(rgba(94,230,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(94,230,255,0.05) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 20%, black 40%, transparent 90%);
+}
+
+.noise-overlay{
+  position:fixed;inset:0;z-index:2;pointer-events:none;
+  background-image:repeating-linear-gradient(0deg, rgba(255,255,255,0.014) 0px, rgba(255,255,255,0.014) 1px, transparent 1px, transparent 3px);
+  mix-blend-mode:overlay;
+}
+.scanline{
+  position:fixed;left:0;right:0;height:2px;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg, transparent, var(--cyan-soft), transparent);
+  animation:scan 8s linear infinite;opacity:.5;
+}
+@keyframes scan{0%{top:-2%;}100%{top:102%;}}
+
+/* cursor light that "activates" the glass beneath it */
+#cursor-glow{
+  position:fixed;top:0;left:0;width:520px;height:520px;z-index:4;pointer-events:none;
+  transform:translate(-50%,-50%);
+  background:radial-gradient(circle, rgba(94,230,255,0.16), rgba(180,139,255,0.08) 45%, transparent 70%);
+  mix-blend-mode:screen;
+  transition:opacity .4s ease;
+  will-change:transform;
+}
+
+/* ================= LIQUID GLASS BASE ================= */
+.glass{
+  position:relative;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,0.10), rgba(255,255,255,0.015) 45%, rgba(255,255,255,0.05)),
+    var(--glass-fill);
+  border:1px solid var(--glass-border);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+  box-shadow:
+    0 18px 40px -16px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(255,255,255,.03);
+  overflow:hidden;
+  transition:border-color .35s ease, box-shadow .35s ease, transform .35s ease;
+}
+.glass::before{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(420px circle at var(--mx) var(--my), rgba(255,255,255,.14), transparent 60%);
+  opacity:0;transition:opacity .4s ease;
+}
+.glass:hover::before{opacity:1;}
+.glass:hover{border-color:var(--glass-border-hi);}
+
+.bracket{position:absolute;width:16px;height:16px;border:2px solid var(--cyan);opacity:.65;pointer-events:none;}
+.bracket.tl{top:10px;left:10px;border-right:none;border-bottom:none;}
+.bracket.br{bottom:10px;right:10px;border-left:none;border-top:none;}
+
+.eyebrow{
+  font-family:var(--font-mono);font-size:0.8rem;letter-spacing:0.35em;color:var(--cyan);
+  text-transform:uppercase;display:flex;align-items:center;gap:12px;margin-bottom:14px;
+}
+.eyebrow::before{content:"";width:28px;height:1px;background:linear-gradient(90deg,var(--cyan),transparent);display:inline-block;}
+
+/* ================= NAV — FLOATING GLASS PILL ================= */
+nav{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:50;
+  display:flex;align-items:center;gap:28px;
+  padding:12px 14px 12px 26px;
+  border-radius:100px;
+  width:min(1180px,92vw);
+  justify-content:space-between;
+}
+.logo{
+  font-family:var(--font-display);font-weight:900;font-size:1.05rem;letter-spacing:0.08em;
+  color:var(--text);display:flex;align-items:center;gap:10px;white-space:nowrap;
+}
+.logo span{background:linear-gradient(90deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.logo-mark{
+  width:12px;height:12px;background:var(--cyan);
+  clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  box-shadow:0 0 14px var(--cyan), 0 0 28px var(--cyan-soft);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.nav-links{position:relative;display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;}
+.nav-links a{color:var(--text-dim);position:relative;padding:9px 15px;border-radius:100px;transition:color .25s ease;z-index:2;}
+.nav-links a:hover, .nav-links a:focus-visible{color:var(--void-0);}
+.nav-hi{
+  position:absolute;top:0;left:0;height:100%;border-radius:100px;z-index:1;
+  background:linear-gradient(90deg,var(--cyan),var(--violet));
+  box-shadow:0 0 22px var(--cyan-soft);
+  opacity:0;transition:transform .35s cubic-bezier(.2,.8,.2,1), width .35s cubic-bezier(.2,.8,.2,1), opacity .25s ease;
+}
+.nav-links:hover .nav-hi{opacity:1;}
+#musicToggle{white-space:nowrap;}
+.nav-toggle{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;z-index:60;padding:6px;}
+.nav-toggle span{width:22px;height:2px;background:var(--cyan);display:block;border-radius:2px;}
+
+/* ================= BUTTONS — LIQUID GLASS ================= */
+.btn{
+  font-family:var(--font-mono);font-size:0.82rem;letter-spacing:0.14em;text-transform:uppercase;
+  padding:15px 28px;border:1px solid var(--glass-border);color:var(--text);
+  background:var(--glass-fill-strong);backdrop-filter:blur(14px);
+  cursor:pointer;position:relative;overflow:hidden;border-radius:100px;
+  transition:border-color .3s ease, transform .25s ease, box-shadow .3s ease;
+}
+.btn::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  background:linear-gradient(120deg, transparent 30%, rgba(255,255,255,.5) 48%, transparent 65%);
+  transform:translateX(-120%);transition:transform .6s ease;
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 10px 30px -8px var(--cyan-soft);}
+.btn:hover::before{transform:translateX(120%);}
+.btn.solid{background:linear-gradient(135deg,var(--cyan),var(--violet));color:var(--void-0);border-color:transparent;font-weight:700;}
+.btn.amber{border-color:rgba(255,177,94,.5);}
+.btn.amber:hover{border-color:var(--amber);box-shadow:0 10px 30px -8px var(--amber-soft);}
+.btn.solid.amber{background:linear-gradient(135deg,var(--amber),#ff7a5c);color:#1a0d05;}
+
+/* ================= HERO ================= */
+.hero{
+  min-height:100vh;display:grid;grid-template-columns:1fr 1.15fr;gap:40px;align-items:center;
+  padding:170px 8vw 100px;position:relative;
+}
+.hero-left-collab{position:relative;width:100%;display:flex;justify-content:center;align-items:center;z-index:2;}
+.astro-halo{
+  position:absolute;width:80%;aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle, var(--cyan-soft), transparent 70%);
+  filter:blur(30px);animation:pulse 4s ease-in-out infinite;
+}
+.orbit-ring{
+  position:absolute;border:1px dashed rgba(94,230,255,0.25);border-radius:50%;
+  animation:spin linear infinite;
+}
+.orbit-ring.r1{width:105%;height:105%;animation-duration:40s;}
+.orbit-ring.r2{width:125%;height:125%;animation-duration:70s;border-color:rgba(180,139,255,0.2);animation-direction:reverse;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.astronaut-wrapper-collab{width:85%;max-width:420px;animation:floatCollab 6s ease-in-out infinite;position:relative;z-index:2;}
+.astronaut-img-collab{width:100%;height:auto;display:block;filter:drop-shadow(0 20px 50px rgba(94,230,255,0.3));}
+
+.hero-right-content{z-index:5;animation:fadeInUpCollab 1.2s cubic-bezier(0.25,1,0.5,1) forwards;}
+.hero-coords{
+  font-family:var(--font-mono);font-size:0.76rem;color:var(--text-dim);letter-spacing:0.1em;
+  margin-bottom:24px;display:flex;gap:16px;flex-wrap:wrap;
+}
+.hero-coords b{color:var(--amber);}
+.hero-coords > *{padding:6px 14px;border-radius:100px;background:var(--glass-fill);border:1px solid var(--glass-border);}
+.hero h1{
+  font-size:clamp(2.1rem, 4.6vw, 3.9rem);line-height:1.12;font-weight:900;
+  background:linear-gradient(180deg, #fff 0%, var(--text) 45%, var(--cyan) 130%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 60px rgba(94,230,255,0.18);
+}
+.hero-sub-collab{font-family:var(--font-mono);font-size:1.05rem;letter-spacing:2px;color:var(--cyan);margin-top:16px;text-transform:uppercase;}
+.hero-sub-collab span{color:rgba(255,255,255,0.35);}
+.hero-sub{margin-top:20px;max-width:560px;color:var(--text-dim);font-size:1.12rem;font-weight:500;}
+
+.jokes-box-collab{
+  padding:20px 22px;border-radius:var(--r-md);margin-top:26px;margin-bottom:30px;
+  border-color:rgba(180,139,255,.35);
+}
+.jokes-box-collab::before{background:radial-gradient(420px circle at var(--mx) var(--my), rgba(180,139,255,.22), transparent 60%);}
+.jokes-box-collab p{font-size:0.95rem;line-height:1.65;color:rgba(255,255,255,0.85);}
+
+.hero-actions{display:flex;gap:18px;flex-wrap:wrap;}
+.hero-scroll{
+  position:absolute;bottom:25px;left:8vw;font-family:var(--font-mono);font-size:0.72rem;
+  color:var(--text-dim);display:flex;align-items:center;gap:14px;letter-spacing:0.14em;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(var(--cyan), transparent);position:relative;overflow:hidden;}
+.scroll-line::after{content:"";position:absolute;top:-50%;left:0;width:100%;height:50%;background:var(--cyan);animation:scrolldrop 1.8s ease-in-out infinite;}
+@keyframes scrolldrop{0%{top:-50%;}100%{top:100%;}}
+
+@keyframes floatCollab{0%{transform:translateY(0) rotate(0deg);}50%{transform:translateY(-20px) rotate(2deg);}100%{transform:translateY(0) rotate(0deg);}}
+@keyframes fadeInUpCollab{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
+
+/* ================= SECTION HEADERS ================= */
+.section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:64px;flex-wrap:wrap;gap:20px;}
+.section-head h2{font-size:clamp(2rem,3.6vw,2.9rem);color:#fff;}
+.section-head .num{font-family:var(--font-mono);color:var(--text-dim);font-size:0.85rem;padding:8px 16px;border-radius:100px;background:var(--glass-fill);border:1px solid var(--glass-border);}
+
+/* ================= ABOUT ================= */
+.about-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start;}
+.pilot-card{padding:34px;}
+.pilot-avatar{
+  width:100%;aspect-ratio:1;position:relative;overflow:hidden;margin-bottom:24px;
+  border-radius:var(--r-md);border:1px solid var(--glass-border);
+  background:radial-gradient(circle at 30% 20%, rgba(94,230,255,.16), transparent 55%),
+             radial-gradient(circle at 80% 80%, rgba(180,139,255,.14), transparent 55%),
+             linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.01));
+}
+.pilot-avatar::before{
+  content:"HS-29";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:3.4rem;font-weight:900;color:rgba(94,230,255,0.16);letter-spacing:0.05em;
+}
+.pilot-avatar::after{
+  content:"";position:absolute;left:0;right:0;top:30%;height:1px;background:rgba(94,230,255,0.28);
+  box-shadow:0 40px 0 rgba(94,230,255,0.12), 0 80px 0 rgba(94,230,255,0.08);
+}
+.pilot-meta{font-family:var(--font-mono);font-size:0.8rem;color:var(--text-dim);display:flex;flex-direction:column;gap:8px;}
+.pilot-meta div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed rgba(255,255,255,0.08);padding-bottom:8px;}
+.pilot-meta span{color:var(--cyan);flex-shrink:0;}
+
+.about-text p{color:var(--text-dim);font-size:1.08rem;margin-bottom:20px;max-width:62ch;}
+.about-text strong{color:var(--text);font-weight:600;}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px;}
+.stat-card{padding:22px 18px;text-align:left;}
+.stat-card .num{font-family:var(--font-display);font-size:2.2rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1;}
+.stat-card .label{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);letter-spacing:0.08em;margin-top:10px;text-transform:uppercase;}
+
+/* ================= PROJECTS ================= */
+.project-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:28px;}
+.project-card{padding:0;cursor:pointer;transition:transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s ease;}
+.project-card:hover{transform:translateY(-8px);box-shadow:0 30px 60px -22px rgba(94,230,255,0.3);}
+.project-visual{height:220px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.project-visual .glyph{font-family:var(--font-display);font-size:5rem;font-weight:900;opacity:0.16;color:#fff;}
+.project-visual::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg, transparent 0 18px, rgba(255,255,255,0.03) 18px 19px);}
+.p1 .project-visual{background:linear-gradient(135deg,rgba(94,230,255,.14),rgba(10,17,32,.4));}
+.p2 .project-visual{background:linear-gradient(135deg,rgba(180,139,255,.16),rgba(18,8,31,.4));}
+.p3 .project-visual{background:linear-gradient(135deg,rgba(255,177,94,.14),rgba(58,31,8,.4));}
+.p4 .project-visual{background:linear-gradient(135deg,rgba(94,230,255,.1),rgba(8,20,24,.4));}
+.project-status{
+  position:absolute;top:16px;left:16px;font-family:var(--font-mono);font-size:0.68rem;
+  padding:6px 14px;border-radius:100px;letter-spacing:0.08em;text-transform:uppercase;
+  background:rgba(3,4,10,0.5);backdrop-filter:blur(6px);border:1px solid currentColor;
+}
+.status-live{color:var(--cyan);}
+.status-dev{color:var(--amber);}
+.status-arch{color:var(--violet);}
+.project-body{padding:26px;}
+.project-body h3{font-size:1.35rem;color:#fff;margin-bottom:8px;}
+.project-body .genre{font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
+.project-body p{color:var(--text-dim);font-size:0.96rem;margin-bottom:18px;}
+.tag-row{display:flex;gap:8px;flex-wrap:wrap;}
+.tag{font-family:var(--font-mono);font-size:0.68rem;padding:5px 12px;border-radius:100px;border:1px solid var(--glass-border);color:var(--text-dim);letter-spacing:0.04em;}
+
+/* ================= ORBITA SHOWCASE ================= */
+.orbita-showcase{
+  background:
+    radial-gradient(circle at 78% 40%, rgba(255,177,94,.08) 0%, transparent 60%),
+    radial-gradient(circle at 10% 70%, rgba(94,230,255,.06) 0%, transparent 55%);
+}
+.orbita-container{max-width:1220px;margin:0 auto;display:flex;flex-direction:column;gap:44px;}
+.orbita-main{display:grid;grid-template-columns:1.15fr 1fr;gap:40px;align-items:center;}
+.orbita-left{max-width:580px;transition:opacity .4s ease, transform .4s ease, filter .4s ease;}
+.orbita-left.changing{opacity:0;transform:translateY(15px);filter:blur(6px);}
+
+.tag-target{
+  display:inline-flex;align-items:center;gap:10px;background:var(--glass-fill);
+  border:1px solid rgba(255,177,94,.4);padding:7px 16px;border-radius:100px;
+  font-family:var(--font-mono);font-size:0.78rem;color:var(--amber);margin-bottom:24px;
+}
+.tag-target span{width:6px;height:6px;background:var(--amber);border-radius:50%;box-shadow:0 0 10px var(--amber);}
+
+.orbita-left h3{font-size:clamp(1.9rem,3.4vw,3.1rem);font-weight:900;line-height:1.12;margin-bottom:18px;color:#fff;}
+.orbita-left h3 span{background:linear-gradient(135deg,var(--amber),#ff7a5c);-webkit-background-clip:text;background-clip:text;color:transparent;transition:all .3s;}
+.orbita-left p{color:var(--text-dim);font-size:1.05rem;line-height:1.6;margin-bottom:32px;}
+.orbita-actions{display:flex;gap:20px;align-items:center;margin-bottom:40px;}
+
+.stats-container{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:20px;border-radius:var(--r-md);}
+.stat-box{display:flex;align-items:center;gap:12px;}
+.stat-icon{font-size:1.3rem;filter:drop-shadow(0 0 8px var(--amber-soft));}
+.stat-val{font-family:var(--font-display);font-size:1.25rem;font-weight:700;color:#fff;display:block;}
+.stat-lbl{font-size:0.78rem;color:var(--text-dim);}
+
+.orbita-right{position:relative;width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
+.planet-ring-frame{position:relative;width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
+.planet-ring-frame .orbit-ring{border-color:rgba(255,177,94,0.22);}
+.planet-ring-frame .r1{width:88%;height:88%;animation-duration:50s;}
+.planet-ring-frame .r2{width:104%;height:104%;animation-duration:80s;border-color:rgba(94,230,255,0.18);}
+.interactive-space{width:100%;height:100%;cursor:grab;}
+
+.explorer-section{margin-top:10px;}
+.explorer-title{
+  font-family:var(--font-mono);font-size:0.82rem;color:var(--amber);text-transform:uppercase;
+  letter-spacing:0.14em;margin-bottom:22px;display:flex;align-items:center;gap:10px;
+}
+.explorer-title::before{content:"";width:15px;height:1px;background:var(--amber);}
+.explorer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.explorer-card{padding:22px;cursor:pointer;transition:all .4s cubic-bezier(0.16,1,0.3,1);}
+.explorer-card:hover{transform:translateY(-5px);border-color:rgba(255,177,94,.4);}
+.explorer-card.active{border-color:var(--amber);background:linear-gradient(155deg, rgba(255,177,94,.1), rgba(255,255,255,.02));}
+.card-icon{
+  width:38px;height:38px;border-radius:50%;background:rgba(255,177,94,0.12);
+  display:flex;align-items:center;justify-content:center;color:var(--amber);
+  margin-bottom:16px;font-size:1.1rem;transition:transform .3s;
+}
+.explorer-card:hover .card-icon{transform:scale(1.1) rotate(10deg);}
+.explorer-card h4{font-family:var(--font-display);font-size:1rem;color:#fff;margin-bottom:6px;}
+.explorer-card p{color:var(--text-dim);font-size:0.83rem;line-height:1.5;}
+.card-arrow{position:absolute;bottom:20px;right:22px;color:var(--text-dim);font-size:0.9rem;opacity:0.5;transition:.3s;}
+.explorer-card:hover .card-arrow, .explorer-card.active .card-arrow{transform:translateX(4px);color:var(--amber);opacity:1;}
+
+/* ================= SYSTEMS / SKILLS ================= */
+.systems-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:50px 44px;}
+.system-block{padding:28px;}
+.system-block h4{font-family:var(--font-mono);font-size:0.82rem;color:var(--amber);letter-spacing:0.14em;text-transform:uppercase;margin-bottom:22px;display:flex;align-items:center;gap:10px;}
+.system-block h4::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 8px var(--amber);display:inline-block;}
+.skill-line{margin-bottom:20px;}
+.skill-line:last-child{margin-bottom:0;}
+.skill-line .top-row{display:flex;justify-content:space-between;font-size:0.95rem;margin-bottom:8px;color:var(--text);}
+.skill-line .top-row span:last-child{font-family:var(--font-mono);color:var(--text-dim);font-size:0.8rem;}
+.bar-track{height:8px;border-radius:100px;background:rgba(255,255,255,.06);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.06);}
+.bar-fill{
+  height:100%;width:0;border-radius:100px;background:linear-gradient(90deg, var(--cyan), var(--violet));
+  transition:width 1.4s cubic-bezier(.2,.8,.2,1);box-shadow:0 0 12px var(--cyan-soft);position:relative;
+}
+.bar-fill::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);width:40px;animation:barShine 2.6s ease-in-out infinite;}
+@keyframes barShine{0%{transform:translateX(-40px);}100%{transform:translateX(220px);}}
+
+/* ================= TIMELINE ================= */
+.timeline{position:relative;padding-left:44px;}
+.timeline::before{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:1px;background:linear-gradient(var(--cyan), var(--violet), transparent);}
+.timeline-item{position:relative;margin-bottom:44px;padding:20px 24px;border-radius:var(--r-md);}
+.timeline-item:last-child{margin-bottom:0;}
+.timeline-item::before{
+  content:"";position:absolute;left:-38px;top:22px;width:12px;height:12px;
+  background:var(--void-0);border:2px solid var(--cyan);border-radius:50%;box-shadow:0 0 12px var(--cyan-soft);
+}
+.timeline-item .year{font-family:var(--font-mono);color:var(--cyan);font-size:0.82rem;letter-spacing:0.1em;}
+.timeline-item h4{font-size:1.25rem;color:#fff;margin:8px 0 6px;}
+.timeline-item p{color:var(--text-dim);max-width:60ch;}
+
+/* ================= CONTACT ================= */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start;}
+.terminal{padding:36px;}
+.terminal-head{display:flex;gap:8px;margin-bottom:24px;}
+.terminal-head span{width:10px;height:10px;border-radius:50%;display:inline-block;}
+.terminal-head span:nth-child(1){background:#ff5f56;}
+.terminal-head span:nth-child(2){background:#ffbd2e;}
+.terminal-head span:nth-child(3){background:#27c93f;}
+.field{margin-bottom:20px;}
+.field label{display:block;font-family:var(--font-mono);font-size:0.72rem;color:var(--cyan);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;}
+.field input, .field textarea{
+  width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:var(--r-sm);
+  color:var(--text);font-family:var(--font-mono);font-size:0.92rem;padding:13px 16px;outline:none;
+  transition:border-color .25s, box-shadow .25s;resize:vertical;
+}
+.field input:focus, .field textarea:focus{border-color:var(--cyan);box-shadow:0 0 0 3px var(--cyan-soft);}
+.contact-info{padding:36px;}
+.contact-info .eyebrow{margin-bottom:24px;}
+.info-row{display:flex;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px dashed rgba(255,255,255,0.08);font-family:var(--font-mono);font-size:0.86rem;}
+.info-row span:first-child{color:var(--text-dim);}
+.info-row span:last-child{color:var(--cyan);text-align:right;}
+.social-row{display:flex;gap:14px;margin-top:28px;}
+.social-row a{
+  width:44px;height:44px;border-radius:50%;border:1px solid var(--glass-border);display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);transition:all .25s;background:var(--glass-fill);
+}
+.social-row a:hover{border-color:var(--cyan);color:var(--cyan);box-shadow:0 0 16px var(--cyan-soft);}
+
+footer{
+  position:relative;z-index:3;margin:0 8vw 40px;padding:26px 32px;border-radius:100px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;
+  font-family:var(--font-mono);font-size:0.75rem;color:var(--text-dim);
+}
+
+.reveal{opacity:0;transform:translateY(28px) scale(.985);filter:blur(4px);transition:opacity .8s ease, transform .8s ease, filter .8s ease;}
+.reveal.visible{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}
+
+/* ================= DONASI MODAL ================= */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  padding:24px;background:rgba(3,4,10,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  opacity:0;pointer-events:none;transition:opacity .35s ease;
+}
+.modal-overlay.open{opacity:1;pointer-events:auto;}
+.modal-card{
+  position:relative;width:min(420px,92vw);padding:38px 32px;text-align:center;border-radius:var(--r-xl);
+  transform:translateY(24px) scale(.94);opacity:0;transition:transform .4s cubic-bezier(.2,.9,.25,1.2), opacity .35s ease;
+  background:
+    linear-gradient(155deg, rgba(255,255,255,0.12), rgba(255,255,255,0.02) 45%, rgba(255,177,94,.06)),
+    var(--glass-fill);
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.28), 0 0 60px -10px var(--amber-soft);
+}
+.modal-overlay.open .modal-card{transform:translateY(0) scale(1);opacity:1;}
+.modal-close{
+  position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;
+  background:var(--glass-fill);border:1px solid var(--glass-border);color:var(--text-dim);
+  font-size:0.95rem;cursor:pointer;transition:all .25s;
+}
+.modal-close:hover{border-color:var(--cyan);color:var(--cyan);}
+.modal-eyebrow{font-family:var(--font-mono);font-size:0.7rem;letter-spacing:0.25em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+.modal-title{font-size:1.7rem;color:#fff;margin-bottom:10px;}
+.modal-sub{color:var(--text-dim);font-size:0.98rem;line-height:1.6;margin-bottom:26px;}
+
+.qr-frame{
+  position:relative;width:200px;aspect-ratio:1;margin:0 auto 26px;border-radius:var(--r-md);
+  overflow:hidden;border:1px solid var(--glass-border);background:rgba(255,255,255,0.04);
+  display:flex;align-items:center;justify-content:center;
+}
+.qr-img{width:100%;height:100%;object-fit:cover;}
+.qr-fallback{
+  display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:16px;color:var(--text-dim);font-family:var(--font-mono);font-size:0.72rem;line-height:1.5;
+}
+.qr-fallback span{font-size:2rem;}
+.qr-fallback b{color:var(--cyan);}
+.modal-actions{display:flex;justify-content:center;}
+
+@media (max-width:480px){
+  .modal-card{padding:30px 22px;}
+  .qr-frame{width:170px;}
+}
+
+@media (max-width:1024px){
+  .orbita-main{grid-template-columns:1fr;}
+  .orbita-right{max-height:400px;order:-1;}
+  .explorer-grid{grid-template-columns:repeat(2,1fr);}
+}
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr;padding-top:120px;text-align:center;}
+  .hero-left-collab{order:-1;margin-bottom:20px;}
+  .hero-coords{justify-content:center;}
+  .hero-actions{justify-content:center;}
+  nav{padding:10px 10px 10px 20px;border-radius:28px;top:12px;}
+  .nav-links{
+    position:fixed;top:0;right:0;height:100vh;width:min(280px,80vw);
+    background:rgba(6,9,18,0.85);backdrop-filter:blur(20px);
+    flex-direction:column;justify-content:center;align-items:flex-start;
+    padding:40px;gap:14px;transform:translateX(100%);transition:transform .35s ease;
+    border-left:1px solid var(--glass-border);border-radius:0;
+  }
+  .nav-links.open{transform:translateX(0);}
+  .nav-links a{width:100%;}
+  .nav-hi{display:none;}
+  .nav-toggle{display:flex;}
+  .about-grid, .contact-grid{grid-template-columns:1fr;}
+  .project-grid, .systems-grid{grid-template-columns:1fr;}
+  .stat-row{grid-template-columns:1fr 1fr;}
+  section{padding:110px 6vw;}
+  footer{margin:0 6vw 30px;border-radius:24px;justify-content:center;text-align:center;}
+}
+@media (max-width:640px){
+  .explorer-grid{grid-template-columns:1fr;}
+  .stats-container{grid-template-columns:1fr;gap:16px;}
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important;transition:none !important;}
+}
+
+  </style>
+</head>
+<body>
+<audio id="bgMusic" loop><source src="musik-dulu-kita-kawan.mp3" type="audio/mpeg"></audio>
+
+<div id="starfield"><canvas id="starfield-canvas"></canvas></div>
+<div class="aurora"><span></span><span></span><span></span></div>
+<div class="grid-overlay"></div>
+<div class="noise-overlay"></div>
+<div class="scanline"></div>
+<div id="cursor-glow"></div>
+
+<nav id="nav" class="glass">
+  <div class="logo"><span class="logo-mark"></span>HEL<span>SPACE 29</span></div>
+  <div class="nav-links" id="navLinks">
+    <span class="nav-hi" id="navHi"></span>
+    <a href="#home" onclick="closeNav()">Home</a>
+    <a href="#about" onclick="closeNav()">Kru</a>
+    <a href="#projects" onclick="closeNav()">Proyek</a>
+    <a href="#showcase" onclick="closeNav()">Orbita Lab</a>
+    <a href="#systems" onclick="closeNav()">Sistem</a>
+    <a href="#log" onclick="closeNav()">Log Misi</a>
+    <a href="#contact" onclick="closeNav()">Transmisi</a>
+  </div>
+  <button id="musicToggle" class="btn" style="padding:10px 18px;">♫ MUSIC ON</button>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="home">
+  <div class="hero-left-collab">
+    <div class="astro-halo"></div>
+    <div class="orbit-ring r1"></div>
+    <div class="orbit-ring r2"></div>
+    <div class="astronaut-wrapper-collab">
+      <img src="kelasking.png" alt="Astronot Melayang" class="astronaut-img-collab">
+    </div>
+  </div>
+
+  <div class="hero-right-content">
+    <div class="hero-coords">
+      <span>SEKTOR: <b>KV-224 // ORION DRIFT</b></span>
+      <span>STATUS: <b>SIAP DIOMELIN NASA / CLIENT</b></span>
+      <span id="clock">00:00:00 GMT+7</span>
+    </div>
+
+    <div class="hero-sub-collab">Explore <span>— the void awaits</span></div>
+
+    <h1>EH ADA YANG DATENG SINI CEK CEK DULU BAPAK IBU.</h1>
+    <p class="hero-sub">Hel Space 29 adalah studio game yang nekat bikin simulasi luar angkasa. Dari ngurusin hukum fisika mesin roket yang sering mogok, sampai bikin skenario galaksi hancur gara-gara salah pencet tombol.</p>
+
+    <div class="jokes-box-collab glass">
+      <p>U.E. &amp; HEL SPACE bukanlah sekadar nama keren. Kami beneran nerbangin manusia ke planet-planet yang dulu cuma anda liat di film sci-fi jadul. Tapi lewat game awkwokwokwo.</p>
+    </div>
+
+    <div class="hero-actions">
+      <button class="btn solid" onclick="document.getElementById('projects').scrollIntoView()">Intip Kerjaaan</button>
+      <button class="btn amber" onclick="document.getElementById('contact').scrollIntoView()">Kirim Spam / Pesan</button>
+    </div>
+  </div>
+
+  <div class="hero-scroll"><div class="scroll-line"></div>SCROLL KE BAWAH BIAR JADI ASTRONOT MAGANG</div>
+</section>
+
+<!-- ================= ABOUT ================= -->
+<section id="about">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Daftar Buronan</div>
+        <h2>Dapur Rekaman Kami</h2>
+      </div>
+      <div class="num">// 01 — SIAPA KAMI</div>
+    </div>
+    <div class="about-grid">
+      <div class="pilot-card glass reveal">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="pilot-avatar"></div>
+        <div class="pilot-meta">
+          <div><span>Callsign</span> HEL-29 (Bukan Agen Gas LPG)</div>
+          <div><span>Peran</span> Mandor Utama / Lead Dev</div>
+          <div><span>Basis</span> Sektor Pemangkat, ID</div>
+          <div><span>Spesialisasi</span> Jualan Tanah di Neptunus</div>
+          <div><span>Engine Utama</span> Apapun yang Nggak Bikin Laptop Meledak</div>
+        </div>
+      </div>
+      <div class="about-text reveal">
+        <p>Berawal dari proyek modifikasi game kecil-kecilan di pojokan kamar yang penuh bungkus mi instan, sekarang <strong>Hel Space 29</strong> berevolusi jadi studio pembuat semesta digital eaaaa wkwkwk. Tempat di mana Anda bisa nyasar di stasiun luar angkasa kosong, ditilang preman antarplanet, atau bangkrut gara-gara beli bensin pesawat jet.</p>
+        <p>Prinsip kami gampang: <strong>kalo gamenya seru ya syukur, kalo pusing ya namanya juga hidup</strong>. Tiap sistem planet acak dan efek ledakan yang kami bikin dirancang khusus biar pc Anda bekerja keras bagai kuda.</p>
+        <p>Kami ngerjain semuanya sendiri—mulai dari ngoding yang bikin rambut rontok, gambar aset visual setengah matang, sampai bikin efek suara jedag-jedug—semuanya diracik pakai kopi, bukan pakai template murah instan.</p>
+        <div class="stat-row">
+          <div class="stat-card glass"><span class="bracket tl"></span><span class="bracket br"></span><div class="num">08</div><div class="label">Tahun Begadang</div></div>
+          <div class="stat-card glass"><span class="bracket tl"></span><span class="bracket br"></span><div class="num">14</div><div class="label">Game Rilis (Sisaan Demo)</div></div>
+          <div class="stat-card glass"><span class="bracket tl"></span><span class="bracket br"></span><div class="num">2.3M</div><div class="label">Korban Ketagihan</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PROJECTS ================= -->
+<section id="projects">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Gudang Rongsokan</div>
+        <h2>Proyekan Cari Duit</h2>
+      </div>
+      <div class="num">// 02 — PILIHAN MENU</div>
+    </div>
+    <div class="project-grid">
+      <div class="project-card glass p1 reveal">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="project-visual"><span class="project-status status-live">JALAN TERUS</span><div class="glyph">01</div></div>
+        <div class="project-body">
+          <h3>DRIFTFALL: ECHOES OF ORION</h3>
+          <div class="genre">RPG Nyasar di Sabuk Asteroid</div>
+          <p>Mulung rongsokan stasiun luar angkasa, nyari serpihan memori kecerdasan buatan purba yang suka ngambek, sambil nahan laper di dalem baju astronot.</p>
+          <div class="tag-row"><span class="tag">Unreal Engine</span><span class="tag">Bikin PC Anget</span><span class="tag">Mabar Kuy</span></div>
+        </div>
+      </div>
+      <div class="project-card glass p2 reveal">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="project-visual"><span class="project-status status-dev">LAGI DITULIS</span><div class="glyph">02</div></div>
+        <div class="project-body">
+          <h3>VOID SYNDICATE</h3>
+          <div class="genre">Strategi Hacker Kurang Tidur</div>
+          <p>Jadi bos sindikat peretas galaksi. Tugas Anda cuma satu: jebol wifi stasiun musuh secara real-time dan kuasai jalur dagang minyak tawon antarbintang.</p>
+          <div class="tag-row"><span class="tag">Unity</span><span class="tag">Anti-Lag (Mitos)</span><span class="tag">Gelut Online</span></div>
+        </div>
+      </div>
+      <div class="project-card glass p3 reveal">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="project-visual"><span class="project-status status-live">BISA DIMAINKAN TAPI GAK SEKARANG</span><div class="glyph">03</div></div>
+        <div class="project-body">
+          <h3>ASHEN HORIZON</h3>
+          <div class="genre">Simulator Bertahan Hidup Kritis</div>
+          <p>Bangun perumahan subsidi di planet gersang berlubang dua matahari. Atur jatah tabung oksigen biar nggak rebutan sama tetangga sebelah rumah.</p>
+          <div class="tag-row"><span class="tag">Engine Rakitan</span><span class="tag">Sim Pusing</span><span class="tag">Main Sendiri Aja</span></div>
+        </div>
+      </div>
+      <div class="project-card glass p4 reveal">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="project-visual"><span class="project-status status-arch">MASUK GUDANG</span><div class="glyph">04</div></div>
+        <div class="project-body">
+          <h3>CHROME REQUIEM</h3>
+          <div class="genre">Tembak-tembakan Kapal Lampu Neon</div>
+          <p>Proyek masa lalu jaman purba. Duel pesawat kelap-kelip dengan musik jedug-jedug synthwave yang bikin kepala auto manggut-manggut sendiri.</p>
+          <div class="tag-row"><span class="tag">Godot</span><span class="tag">Agak 3D Agak 2D</span><span class="tag">Gaya Dingdong</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ORBITA SHOWCASE ================= -->
+<section id="showcase" class="orbita-showcase">
+  <div class="orbita-container">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Pamer Spek Engine</div>
+        <h2>ORBITA — Proyek Mudik Ke Mars</h2>
+      </div>
+      <div class="num">// KARYA MASTERPIECE BERAT</div>
+    </div>
+
+    <div class="orbita-main">
+      <div class="orbita-left glass reveal" id="content-panel" style="padding:34px;">
+        <div class="tag-target"><span></span>Tujuan Liburan: <b id="lbl-target">Mars</b></div>
+        <h3 id="lbl-title">Piknik ke <span>Mars</span></h3>
+        <p id="lbl-desc">Ikut rombongan tur jalan-jalan keliling planet merah biar tahu rasanya hidup tanpa tagihan listrik dan air PDAM macet.</p>
+
+        <div class="orbita-actions">
+          <button class="btn solid amber" onclick="openDonasiModal()">Berangkat Sekarang ➔</button>
+        </div>
+
+        <div class="stats-container glass">
+          <div class="stat-box">
+            <div class="stat-icon">🚀</div>
+            <div><span class="stat-val" id="stat-1">7</span><span class="stat-lbl" id="stat-lbl-1">Misi Gak Karuan</span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">👥</div>
+            <div><span class="stat-val" id="stat-2">125+</span><span class="stat-lbl" id="stat-lbl-2">Kru Pasrah</span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-icon">📅</div>
+            <div><span class="stat-val" id="stat-3">2030</span><span class="stat-lbl" id="stat-lbl-3">Tahun Target Kelar</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="orbita-right reveal">
+        <div class="planet-ring-frame">
+          <div class="orbit-ring r1"></div>
+          <div class="orbit-ring r2"></div>
+          <canvas id="planet-canvas" class="interactive-space"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="explorer-section">
+      <div class="explorer-title">Klik Tombol Ini Biar Kelihatan Keren</div>
+      <div class="explorer-grid">
+        <div class="explorer-card glass active reveal" onclick="switchContent(0, this)">
+          <div class="card-icon">🪐</div>
+          <h4>Tentang Mars</h4>
+          <p>Isinya cuma tanah merah sama batu, tapi lebih ramah dari komplek lu.</p>
+          <div class="card-arrow">➔</div>
+        </div>
+        <div class="explorer-card glass reveal" onclick="switchContent(1, this)">
+          <div class="card-icon">📡</div>
+          <h4>Mesin Ajaib</h4>
+          <p>Teknologi pendorong roket anti mogok kalau dipakai pas hari libur nasional.</p>
+          <div class="card-arrow">➔</div>
+        </div>
+        <div class="explorer-card glass reveal" onclick="switchContent(2, this)">
+          <div class="card-icon">👨‍🚀</div>
+          <h4>Latihan Fisik</h4>
+          <p>Cara push-up di ruang hampa udara sambil megangin mangkok bakso angkasa.</p>
+          <div class="card-arrow">➔</div>
+        </div>
+        <div class="explorer-card glass reveal" onclick="switchContent(3, this)">
+          <div class="card-icon">📷</div>
+          <h4>Koleksi Foto</h4>
+          <p>Isinya foto selfie alien lokal yang gak sengaja kejepret kamera roket.</p>
+          <div class="card-arrow">➔</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= SYSTEMS / SKILLS ================= -->
+<section id="systems">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Cek Kondisi Otak</div>
+        <h2>Kapasitas Memori Otak Dev</h2>
+      </div>
+      <div class="num">// 03 — SKILL LEVEL</div>
+    </div>
+    <div class="systems-grid">
+      <div class="system-block glass reveal">
+        <h4>Bagian Ketik-Ketik — Pemrograman</h4>
+        <div class="skill-line"><div class="top-row"><span>C++ / Copas StackOverflow</span><span>92%</span></div><div class="bar-track"><div class="bar-fill" data-fill="92"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Unreal Engine (Nunggu Loading)</span><span>88%</span></div><div class="bar-track"><div class="bar-fill" data-fill="88"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Unity / C# / Gak Error Aja Syukur</span><span>85%</span></div><div class="bar-track"><div class="bar-fill" data-fill="85"></div></div></div>
+      </div>
+      <div class="system-block glass reveal">
+        <h4>Modus Tempur — Desain Gameplay</h4>
+        <div class="skill-line"><div class="top-row"><span>Sistem Naikin Level Biar Seneng</span><span>90%</span></div><div class="bar-track"><div class="bar-fill" data-fill="90"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Kecerdasan Bot Musuh (Nggak Oon)</span><span>84%</span></div><div class="bar-track"><div class="bar-fill" data-fill="84"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Bikin Map Acak Biar Nyasar</span><span>80%</span></div><div class="bar-track"><div class="bar-fill" data-fill="80"></div></div></div>
+      </div>
+      <div class="system-block glass reveal">
+        <h4>Tameng Kosmetik — Tech Art &amp; Visual</h4>
+        <div class="skill-line"><div class="top-row"><span>Bikin Shader Biar Glowing</span><span>87%</span></div><div class="bar-track"><div class="bar-fill" data-fill="87"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Pencahayaan Biar Keren Kayak Bioskop</span><span>82%</span></div><div class="bar-track"><div class="bar-fill" data-fill="82"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Desain Layar Layaknya Pesawat UFO</span><span>90%</span></div><div class="bar-track"><div class="bar-fill" data-fill="90"></div></div></div>
+      </div>
+      <div class="system-block glass reveal">
+        <h4>Peta Jalan — Urusan Manajemen</h4>
+        <div class="skill-line"><div class="top-row"><span>Bikin Capek Tim Lintas Divisi</span><span>89%</span></div><div class="bar-track"><div class="bar-fill" data-fill="89"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Ngedengerin Curhatan Komunitas</span><span>78%</span></div><div class="bar-track"><div class="bar-fill" data-fill="78"></div></div></div>
+        <div class="skill-line"><div class="top-row"><span>Ngarang Cerita Fiksi Ilmiah Halusinasi</span><span>93%</span></div><div class="bar-track"><div class="bar-fill" data-fill="93"></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LOG MISI / TIMELINE ================= -->
+<section id="log">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Sejarah Kegagalan &amp; Kesuksesan</div>
+        <h2>Garis Waktu Perjuangan</h2>
+      </div>
+      <div class="num">// 04 — KISAH MASA LALU</div>
+    </div>
+    <div class="timeline reveal">
+      <div class="timeline-item glass">
+        <div class="year">2026</div>
+        <h4>Pendirian Hel Space 29</h4>
+        <p>Awal mula nekat bikin game Chrome Requiem modal begadang semalaman suntuk.</p>
+      </div>
+      <div class="timeline-item glass">
+        <div class="year">2026</div>
+        <h4>Keracunan Unreal Engine</h4>
+        <p>Laptop mulai sering panas gara-gara nyoba bikin simulasi dunia luar angkasa luas.</p>
+      </div>
+      <div class="timeline-item glass">
+        <div class="year">2026</div>
+        <h4>Proyek Hel Horizon Berdiri</h4>
+        <p>Makin berani bikin proyek yang ukurannya bikin ssd laptop megap-megap.</p>
+      </div>
+      <div class="timeline-item glass">
+        <div class="year">2026</div>
+        <h4>Driftfall Dipaksa Produksi</h4>
+        <p>Puncak kerja keras seluruh kru studio gabungin semua skill yang tersisa.</p>
+      </div>
+      <div class="timeline-item glass">
+        <div class="year">2026</div>
+        <h4>Void Syndicate Lahir</h4>
+        <p>Buka cabang proyek baru khusus buat gamer yang hobi adu strategi lewat internet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONTACT ================= -->
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-head reveal">
+      <div>
+        <div class="eyebrow">Kotak Saran Jin</div>
+        <h2>Saluran Hubungan Gaib</h2>
+      </div>
+      <div class="num">// 05 — HUBUNGI KAMI</div>
+    </div>
+    <div class="contact-grid">
+      <form class="terminal glass reveal" onsubmit="return handleSubmit(event)">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="terminal-head"><span></span><span></span><span></span></div>
+        <div class="field">
+          <label>Siapa Nama Anda?</label>
+          <input type="text" placeholder="cth. Rahel Tampan Tiada Tara" required>
+        </div>
+        <div class="field">
+          <label>Alamat Surat Elektronik (Email)</label>
+          <input type="email" placeholder="nama_kamu@gmail.com" required>
+        </div>
+        <div class="field">
+          <label>Mau Ngomong Apa?</label>
+          <textarea rows="5" placeholder="Ketikan gibahan atau tawaran project mahalmu di sini..." required></textarea>
+        </div>
+        <button type="submit" class="btn solid" style="width:100%;">Tembak Pesan Ke Atas</button>
+      </form>
+
+      <div class="contact-info glass reveal">
+        <span class="bracket tl"></span><span class="bracket br"></span>
+        <div class="eyebrow">Lokasi Sembunyi</div>
+        <div class="info-row"><span>Koordinat Bumi</span><span>Kalimantan Barat, Indonesia Terbuka</span></div>
+        <div class="info-row"><span>Pintu Masuk</span><span>contact, rahel290906@gmail.com</span></div>
+        <div class="info-row"><span>Jam Melek</span><span>Senin–Jumat, Jam 09:00 Siang Sampai Capek</span></div>
+        <div class="info-row"><span>Lowongan Kerja</span><span>Terbuka Asal Mau Dibayar Pake Doa &amp; Kopi</span></div>
+        <div class="social-row">
+          <a href="#" aria-label="X">X</a>
+          <a href="#" aria-label="Discord">DC</a>
+          <a href="#" aria-label="YouTube">YT</a>
+          <a href="#" aria-label="Itch.io">IO</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="glass">
+  <span>© 2026 HEL SPACE 29 STUDIOS. Semua sistem jalan normal, kepala devnya yang nggak normal.</span>
+  <span>DIRAKIT DI SEKTOR KV-224 BUMI BELAH UTARA</span>
+</footer>
+
+<!-- ================= DONASI MODAL ================= -->
+<div class="modal-overlay" id="donasiOverlay" onclick="if(event.target===this) closeDonasiModal()">
+  <div class="modal-card glass">
+    <span class="bracket tl"></span><span class="bracket br"></span>
+    <button class="modal-close" onclick="closeDonasiModal()" aria-label="Tutup">✕</button>
+
+    <div class="modal-eyebrow">// TRANSMISI DITAHAN SEMENTARA</div>
+    <h3 class="modal-title">Donasi Dulu Bree 🙏</h3>
+    <p class="modal-sub">Sedekah support eaa~ biar roketnya jadi berangkat beneran (dan biar devnya nggak makan mi instan mulu).</p>
+
+    <div class="qr-frame">
+      <span class="bracket tl"></span><span class="bracket br"></span>
+      <!-- Ganti src di bawah ini dengan foto QR kamu sendiri -->
+      <img src="qrisnyabre.jpeg" alt="QR Donasi" class="qr-img" id="qrDonasi"
+           onerror="this.style.display='none'; document.getElementById('qrFallback').style.display='flex';">
+      <div class="qr-fallback" id="qrFallback">
+        <span>📷</span>
+        <p>file <b>qrisnyabre.jpeg</b><br>Scan QR ini</p>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn solid amber" onclick="closeDonasiModal()">Siap Bree, Otw Scan ➔</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================================================
+// HEL SPACE 29 — LIQUID GLASS / CYBER-ROBOTIC SPACE EDITION — script.js
+// ==========================================================================
+
+// ===== Starfield canvas with Parallax & Meteors =====
+const canvas = document.getElementById('starfield-canvas');
+const ctx = canvas.getContext('2d');
+let w, h, stars = [], meteors = [];
+const STAR_COUNT = 220;
+let mouseX = 0, mouseY = 0;
+
+function resize(){
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+function initStars(){
+  stars = [];
+  for(let i=0;i<STAR_COUNT;i++){
+    stars.push({
+      x: Math.random()*w,
+      y: Math.random()*h,
+      r: Math.random()*1.6 + 0.3,
+      depth: Math.random()*0.8 + 0.2,
+      tw: Math.random()*Math.PI*2
+    });
+  }
+}
+function spawnMeteor(){
+  if(meteors.length < 3 && Math.random() < 0.008){
+    meteors.push({ x: Math.random()*w, y: 0, len: Math.random()*80 + 40, speed: Math.random()*8 + 7 });
+  }
+}
+let starfieldRunning = true;
+function draw(){
+  if(!starfieldRunning){ return; }
+  ctx.clearRect(0,0,w,h);
+  for(const s of stars){
+    s.tw += 0.02;
+    const alpha = 0.4 + Math.sin(s.tw)*0.5;
+    const parallaxX = (mouseX - w/2) * s.depth * 0.02;
+    const parallaxY = (mouseY - h/2) * s.depth * 0.02;
+    ctx.beginPath();
+    ctx.arc(s.x + parallaxX, s.y + parallaxY, s.r, 0, Math.PI*2);
+    ctx.fillStyle = `rgba(210,235,255,${alpha})`;
+    ctx.fill();
+  }
+
+  spawnMeteor();
+  meteors.forEach((m, i) => {
+    m.x -= m.speed; m.y += m.speed;
+    ctx.strokeStyle = 'rgba(180,235,255,0.4)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(m.x, m.y);
+    ctx.lineTo(m.x + m.len, m.y - m.len);
+    ctx.stroke();
+    if(m.x < -100 || m.y > h + 100) meteors.splice(i, 1);
+  });
+
+  requestAnimationFrame(draw);
+}
+// debounce resize biar gak berat
+let resizeTimer = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{ resize(); initStars(); }, 150);
+}, { passive:true });
+resize(); initStars(); draw();
+
+// stop animasi kalau tab lagi gak aktif
+document.addEventListener('visibilitychange', ()=>{
+  starfieldRunning = !document.hidden;
+  planetRunning = !document.hidden && planetVisible;
+  if(starfieldRunning) requestAnimationFrame(draw);
+  if(planetRunning) requestAnimationFrame(drawPlanet);
+});
+
+// ===== cursor glow + efek kaca panel, 1 handler mousemove aja =====
+const cursorGlow = document.getElementById('cursor-glow');
+let lastClientX = 0, lastClientY = 0, mouseTicking = false;
+
+function applyMouseFrame(){
+  mouseTicking = false;
+  cursorGlow.style.transform = `translate3d(${lastClientX}px, ${lastClientY}px, 0) translate(-50%,-50%)`;
+  document.documentElement.style.setProperty('--mx', lastClientX + 'px');
+  document.documentElement.style.setProperty('--my', lastClientY + 'px');
+
+  // cari panel kaca yg lagi ketiban cursor
+  const hovered = document.elementFromPoint(lastClientX, lastClientY);
+  const panel = hovered && hovered.closest ? hovered.closest('.glass') : null;
+  if(panel){
+    const rect = panel.getBoundingClientRect();
+    panel.style.setProperty('--mx', (lastClientX - rect.left) + 'px');
+    panel.style.setProperty('--my', (lastClientY - rect.top) + 'px');
+  }
+}
+
+window.addEventListener('mousemove', (e)=>{
+  mouseX = e.clientX; mouseY = e.clientY;
+  lastClientX = e.clientX; lastClientY = e.clientY;
+  if(!mouseTicking){
+    mouseTicking = true;
+    requestAnimationFrame(applyMouseFrame);
+  }
+}, { passive:true });
+window.addEventListener('mouseleave', ()=>{ cursorGlow.style.opacity = '0'; }, { passive:true });
+window.addEventListener('mouseenter', ()=>{ cursorGlow.style.opacity = '1'; }, { passive:true });
+
+// ===== Nav scroll state =====
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', ()=>{
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// ===== Nav liquid highlight that follows the hovered link =====
+const navLinksWrap = document.getElementById('navLinks');
+const navHi = document.getElementById('navHi');
+const navAnchors = navLinksWrap.querySelectorAll('a');
+function moveHiTo(el){
+  if(!el) return;
+  navHi.style.width = el.offsetWidth + 'px';
+  navHi.style.transform = `translateX(${el.offsetLeft}px)`;
+}
+navAnchors.forEach(a=>{
+  a.addEventListener('mouseenter', ()=> moveHiTo(a));
+});
+navLinksWrap.addEventListener('mouseleave', ()=>{ navHi.style.opacity = '0'; });
+if(navAnchors[0]) moveHiTo(navAnchors[0]);
+
+// ===== Mobile nav toggle =====
+const navToggle = document.getElementById('navToggle');
+navToggle.addEventListener('click', ()=> navLinksWrap.classList.toggle('open'));
+function closeNav(){ navLinksWrap.classList.remove('open'); }
+
+// ===== Reveal on scroll =====
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add('visible');
+      io.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el=> io.observe(el));
+
+// ===== Skill bars fill on view =====
+const bars = document.querySelectorAll('.bar-fill');
+const barIo = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.style.width = entry.target.dataset.fill + '%';
+      barIo.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.4 });
+bars.forEach(b=> barIo.observe(b));
+
+// ===== Live clock (GMT+7) =====
+function updateClock(){
+  const now = new Date();
+  const utc = now.getTime() + now.getTimezoneOffset()*60000;
+  const local = new Date(utc + 7*3600000);
+  const hh = String(local.getHours()).padStart(2,'0');
+  const mm = String(local.getMinutes()).padStart(2,'0');
+  const ss = String(local.getSeconds()).padStart(2,'0');
+  document.getElementById('clock').textContent = `${hh}:${mm}:${ss} GMT+7`;
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ===== Contact form =====
+function handleSubmit(e){
+  e.preventDefault();
+  const btn = e.target.querySelector('button[type="submit"]');
+  const original = btn.textContent;
+  btn.textContent = 'TRANSMISI TERKIRIM ✓';
+  setTimeout(()=>{ btn.textContent = original; e.target.reset(); }, 2400);
+  return false;
+}
+
+// ===== Donasi Modal =====
+const donasiOverlay = document.getElementById('donasiOverlay');
+function openDonasiModal(){
+  donasiOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDonasiModal(){
+  donasiOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape' && donasiOverlay.classList.contains('open')) closeDonasiModal();
+});
+
+// ===== Music Controller =====
+const bgMusic = document.getElementById('bgMusic');
+bgMusic.volume = 0.25;
+let playing = false;
+const mt = document.getElementById('musicToggle');
+mt.addEventListener('click', ()=>{
+  if(!playing){
+    bgMusic.play();
+    mt.textContent = '♫ MUSIC OFF';
+    mt.style.boxShadow = '0 0 18px #5ee6ff';
+  }else{
+    bgMusic.pause();
+    mt.textContent = '♫ MUSIC ON';
+    mt.style.boxShadow = 'none';
+  }
+  playing = !playing;
+});
+
+// ================= ORBITA LOGIC DATA CONTENT =================
+const contentData = [
+  {
+    target: "Mars", title: "Piknik ke <span>Mars</span>",
+    desc: "Ikut rombongan tur jalan-jalan keliling planet merah biar tahu rasanya hidup tanpa tagihan listrik dan air PDAM macet.",
+    stats: ["7", "125+", "2030"], statsLbl: ["Misi Gak Karuan", "Kru Pasrah", "Tahun Target Kelar"], color: "#ffb15e"
+  },
+  {
+    target: "Deep Space Tech", title: "Quantum <span>Propulsion</span>",
+    desc: "Teknologi pendorong roket anti mogok kalau dipakai pas hari libur nasional biar pangkas waktu bolak-balik bumi.",
+    stats: ["Mach 24", "98.8%", "Zero-G"], statsLbl: ["Kec. Maksimal", "Efisiensi Daya", "Sistem Inti"], color: "#5ee6ff"
+  },
+  {
+    target: "Artemis Base", title: "Pelatihan <span>Astronot</span>",
+    desc: "Cara push-up di ruang hampa udara sambil megangin mangkok bakso angkasa biar mental dan fisik kru sekuat baja ringan.",
+    stats: ["18 G", "720 Hari", "12 Sektor"], statsLbl: ["Beban Gravitasi", "Durasi Simulasi", "Kubah Habitat"], color: "#b48bff"
+  },
+  {
+    target: "Archive-09", title: "Arsip <span>Visual</span>",
+    desc: "Isinya foto selfie alien lokal yang gak sengaja kejepret kamera roket beserta dokumentasi bebatuan antik berlumut purba.",
+    stats: ["4K HDR", "42 TB", "1.2M+"], statsLbl: ["Resolusi Lensa", "Total Data", "Foto Terarsip"], color: "#e2e8f0"
+  }
+];
+
+function switchContent(index, card){
+  if(card.classList.contains('active')) return;
+
+  document.querySelectorAll('.explorer-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+
+  const panel = document.getElementById('content-panel');
+  panel.classList.add('changing');
+
+  setTimeout(() => {
+    const data = contentData[index];
+    document.getElementById('lbl-target').textContent = data.target;
+    document.getElementById('lbl-title').innerHTML = data.title;
+    document.getElementById('lbl-desc').textContent = data.desc;
+
+    document.getElementById('stat-1').textContent = data.stats[0];
+    document.getElementById('stat-lbl-1').textContent = data.statsLbl[0];
+    document.getElementById('stat-2').textContent = data.stats[1];
+    document.getElementById('stat-lbl-2').textContent = data.statsLbl[1];
+    document.getElementById('stat-3').textContent = data.stats[2];
+    document.getElementById('stat-lbl-3').textContent = data.statsLbl[2];
+
+    document.documentElement.style.setProperty('--amber', data.color);
+
+    panel.classList.remove('changing');
+  }, 400);
+}
+
+// ================= INTERACTIVE 3D PLANET CANVAS =================
+const planetCanvas = document.getElementById('planet-canvas');
+const pCtx = planetCanvas.getContext('2d');
+let rotation = 0;
+let mx = 0, my = 0;
+
+window.addEventListener('mousemove', (e) => {
+  const rect = planetCanvas.getBoundingClientRect();
+  mx = ((e.clientX - rect.left) / rect.width - 0.5) * 20;
+  my = ((e.clientY - rect.top) / rect.height - 0.5) * 20;
+}, { passive:true });
+
+// animasi planet jalan cuma kalau lagi kelihatan di layar
+let planetVisible = false;
+let planetRunning = false;
+const planetIo = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    planetVisible = entry.isIntersecting;
+    const shouldRun = planetVisible && !document.hidden;
+    if(shouldRun && !planetRunning){
+      planetRunning = true;
+      requestAnimationFrame(drawPlanet);
+    } else {
+      planetRunning = shouldRun;
+    }
+  });
+}, { threshold: 0.05 });
+planetIo.observe(planetCanvas);
+
+function drawPlanet(){
+  if(!planetRunning){ return; }
+  pCtx.clearRect(0,0,500,500);
+  const cx = 250 + mx; const cy = 250 + my;
+  rotation += 0.002;
+
+  pCtx.strokeStyle = 'rgba(255, 255, 255, 0.06)';
+  pCtx.lineWidth = 1.5;
+  pCtx.save();
+  pCtx.translate(cx, cy);
+  pCtx.scale(1.4, 0.5);
+  pCtx.beginPath(); pCtx.arc(0, 0, 160, 0, Math.PI * 2); pCtx.stroke();
+  pCtx.restore();
+
+  let glow = pCtx.createRadialGradient(cx, cy, 140, cx, cy, 170);
+  glow.addColorStop(0, 'rgba(255, 177, 94, 0.32)');
+  glow.addColorStop(1, 'rgba(0,0,0,0)');
+  pCtx.fillStyle = glow; pCtx.beginPath(); pCtx.arc(cx, cy, 170, 0, Math.PI*2); pCtx.fill();
+
+  pCtx.fillStyle = '#b93c16';
+  pCtx.beginPath(); pCtx.arc(cx, cy, 150, 0, Math.PI*2); pCtx.fill();
+
+  pCtx.save();
+  pCtx.beginPath(); pCtx.arc(cx, cy, 150, 0, Math.PI*2); pCtx.clip();
+  pCtx.fillStyle = 'rgba(40, 10, 5, 0.65)';
+  for (let i = 0; i < 5; i++){
+    let ox = Math.sin(rotation + i) * 60;
+    pCtx.beginPath(); pCtx.arc(cx - 40 + ox, cy - 20 + (i*25), 50 + (i*10), 0, Math.PI*2); pCtx.fill();
+  }
+  let shadow = pCtx.createRadialGradient(cx - 50, cy - 50, 100, cx + 30, cy + 30, 155);
+  shadow.addColorStop(0, 'rgba(0,0,0,0)');
+  shadow.addColorStop(1, 'rgba(5, 2, 8, 0.95)');
+  pCtx.fillStyle = shadow; pCtx.beginPath(); pCtx.arc(cx, cy, 152, 0, Math.PI*2); pCtx.fill();
+  pCtx.restore();
+
+  pCtx.save();
+  pCtx.translate(cx, cy);
+  let satX = Math.cos(rotation * 2.5) * 220;
+  let satY = Math.sin(rotation * 2.5) * 75;
+
+  pCtx.fillStyle = '#e2e8f0';
+  pCtx.fillRect(satX - 6, satY - 4, 12, 8);
+  pCtx.fillStyle = '#5ee6ff';
+  pCtx.fillRect(satX - 16, satY - 2, 8, 4);
+  pCtx.fillRect(satX + 8, satY - 2, 8, 4);
+  pCtx.restore();
+
+  requestAnimationFrame(drawPlanet);
+}
+
+planetCanvas.width = 500;
+planetCanvas.height = 500;
+// gambar pertama nunggu observer bilang udah kelihatan
+
+</script>
+</body>
+</html>
